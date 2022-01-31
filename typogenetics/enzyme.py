@@ -3,7 +3,7 @@ from typing import List
 
 from typogenetics import amino_acids, strand
 
-binding_preferences = {
+BINDING_PREFERENCES = {
     0: "A",
     1: "C",
     2: "G",
@@ -24,9 +24,9 @@ class Enzyme:
         if len(self.amino_acids) > 2:
             inner_amino_acids = self.amino_acids[1:-2]
             for amino_acid in inner_amino_acids:
-                net_left_folds += amino_acids.enzyme_left_folds[amino_acid]
+                net_left_folds += amino_acids.ENZYME_LEFT_FOLDS[amino_acid]
             net_left_folds %= 4
-        return binding_preferences[net_left_folds]
+        return BINDING_PREFERENCES[net_left_folds]
 
     def bind_to_strand(self, strand_member: strand.Unit):
         binding_preference = self.binding_preference
@@ -138,30 +138,30 @@ class Enzyme:
     def _rpy(self):
         self._mvr()
         while self.unit is not None \
-                and self.unit.base not in strand.pyrimidines:
+                and self.unit.base not in strand.PYRIMIDINES:
             self._mvr()
 
     def _rpu(self):
         self._mvr()
         while self.unit is not None \
-                and self.unit.base not in strand.purines:
+                and self.unit.base not in strand.PURINES:
             self._mvr()
 
     def _lpy(self):
         self._mvl()
         while self.unit is not None \
-                and self.unit.base not in strand.pyrimidines:
+                and self.unit.base not in strand.PYRIMIDINES:
             self._mvl()
 
     def _lpu(self):
         self._mvl()
         while self.unit is not None \
-                and self.unit.base not in strand.purines:
+                and self.unit.base not in strand.PURINES:
             self._mvl()
 
     def _maybe_copy(self):
         if self.copy_mode and self.unit.pair is None:
-            new_pair_unit = strand.Unit(base=strand.compliments[self.unit.base])
+            new_pair_unit = strand.Unit(base=strand.COMPLIMENTS[self.unit.base])
 
             # Attach the new unit across from the current one
             self.unit.pair = new_pair_unit

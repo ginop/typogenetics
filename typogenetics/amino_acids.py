@@ -1,5 +1,5 @@
 AminoAcidType = str
-amino_acids = {
+AMINO_ACIDS = {
     "cut",  # cut strand(s)
     "del",  # delete a base from strand
     "swi",  # switch enzyme to other strand
@@ -18,7 +18,7 @@ amino_acids = {
 }
 
 DupletType = str
-duplets = {
+DUPLETS = {
     "AC": "cut",
     "AG": "del",
     "AT": "swi",
@@ -36,7 +36,7 @@ duplets = {
     "TT": "lpu",
 }
 
-enzyme_folds = {
+ENZYME_FOLDS = {
     "cut": "s",
     "del": "s",
     "swi": "r",
@@ -53,8 +53,8 @@ enzyme_folds = {
     "lpy": "l",
     "lpu": "l",
 }
-enzyme_left_folds = {
+ENZYME_LEFT_FOLDS = {
     amino_acid:
         fold
-    for amino_acid, fold in enzyme_folds.items()
+    for amino_acid, fold in ENZYME_FOLDS.items()
 }

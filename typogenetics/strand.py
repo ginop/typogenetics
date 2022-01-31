@@ -3,16 +3,16 @@ from dataclasses import dataclass
 from typing import Optional
 
 BaseType = str
-purines = {"A", "G"}
-pyrimidines = {"C", "T"}
-bases = purines | pyrimidines
-compliments = {
+PURINES = {"A", "G"}
+PYRIMIDINES = {"C", "T"}
+BASES = PURINES | PYRIMIDINES
+COMPLIMENTS = {
     "A": "T",
     "T": "A",
     "G": "C",
     "C": "G",
 }
-inversions = {
+INVERSIONS = {
     "A": "\u2200",
     "T": "\u2534",
     "G": "\u05E4",
