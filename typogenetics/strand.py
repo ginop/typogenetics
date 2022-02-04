@@ -1,6 +1,5 @@
+import collections
 import typing
-from dataclasses import dataclass
-from typing import Optional
 
 BaseType = str
 PURINES = {"A", "G"}
@@ -12,44 +11,28 @@ COMPLIMENTS = {
     "G": "C",
     "C": "G",
 }
-INVERSIONS = {
-    "A": "\u2200",
-    "T": "\u2534",
-    "G": "\u05E4",
-    "C": "\u0186",
-}
+Unit = collections.namedtuple("Unit", ["facing", "opposite"])
 
 
-@dataclass
-class Unit:
-    base: BaseType
-    right: Optional["Unit"] = None
-    left: Optional["Unit"] = None
-    pair: Optional["Unit"] = None
+class Strand(typing.List[Unit]):
 
-    @property
-    def left_most(self):
-        return self if self.left is None else self.left.left_most
-
-    @property
-    def strand(self):
-        strand = []
-        unit = self.left_most
-        while unit is not None:
-            strand.append(unit)
-            unit = unit.right
-        return strand
-
-    @property
-    def strand_str(self):
-        return "".join(unit.base for unit in self.strand)
-
-
-class Strand(list):
     @classmethod
-    def make_from_code(cls, code: BaseType):
-        units = [Unit(base=base) for base in code]
-        for ii in range(1, len(units)):
-            units[ii-1].right = units[ii]
-            units[ii].left = units[ii-1]
-        return cls(units)
+    def make_from_code(cls, code: str):
+        return cls(Unit(base, None) for base in code)
+
+    def __str__(self):
+        if any(unit.opposite is not None for unit in self):
+            return (
+                "".join(unit.opposite or " " for unit in self)
+                + "\n"
+                + "".join(unit.facing or " " for unit in self)
+            )
+        return "".join(unit.facing or " " for unit in self)
+
+    def unzip(self):
+        facing_string = "".join(unit.facing or " " for unit in self)
+        for code in facing_string.split():
+            yield Strand.make_from_code(code)
+        opposite_string = "".join(unit.opposite or " " for unit in reversed(self))
+        for code in opposite_string.split():
+            yield Strand.make_from_code(code)
