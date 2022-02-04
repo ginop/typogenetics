@@ -1,7 +1,7 @@
 import typing
 from typing import List
 
-from amino_acids import AminoAcidType, ENZYME_LEFT_FOLDS
+from amino_acids import AminoAcidType, ENZYME_LEFT_FOLDS, DUPLETS
 from strand import Strand, PYRIMIDINES, PURINES, COMPLIMENTS, BaseType, Unit
 
 BINDING_PREFERENCES = {
@@ -21,11 +21,26 @@ class Enzyme:
         self._strand: typing.Optional[Strand] = None
         self._unit_index: int = 0
 
+    def __str__(self):
+        return " - ".join(self.amino_acids)
+
+    @classmethod
+    def make_from_genes(cls, genes: BaseType):
+        duplets = [genes[i-2:i] for i in range(2, len(genes), 2)]
+        amino_acids = []
+        for duplet in duplets:
+            if duplet == "AA":
+                yield cls(amino_acids)
+                amino_acids = []
+            else:
+                amino_acids.append(DUPLETS[duplet])
+        yield cls(amino_acids)
+
     @property
     def binding_preference(self):
         net_left_folds = 0
         if len(self.amino_acids) > 2:
-            inner_amino_acids = self.amino_acids[1:-2]
+            inner_amino_acids = self.amino_acids[1:-1]
             for amino_acid in inner_amino_acids:
                 net_left_folds += ENZYME_LEFT_FOLDS[amino_acid]
             net_left_folds %= 4

@@ -39,3 +39,20 @@ def test_geb_3():
         "CAAAGAGGA",
     ])
     assert produced_strands == expected_strands
+
+
+def test_geb_4():
+    example_genes = "TAGATCCAGTCCACATCGA"
+    coded_enzymes = list(enzyme.amino_acids for enzyme in
+                         Enzyme.make_from_genes(example_genes))
+    expexted_enzymes = [["rpy", "ina", "rpu",
+                         "mvr", "int", "mvl",
+                         "cut", "swi", "cop"]]
+    assert coded_enzymes == expexted_enzymes
+
+
+def test_geb_5():
+    example_enzyme = Enzyme(["rpy", "ina", "rpu",
+                             "mvr", "int", "mvl",
+                             "cut", "swi", "cop"])
+    assert example_enzyme.binding_preference == "C"

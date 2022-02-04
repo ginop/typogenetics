@@ -55,6 +55,6 @@ ENZYME_FOLDS = {
 }
 ENZYME_LEFT_FOLDS = {
     amino_acid:
-        fold
+        {"s": 0, "l": 1, "r": -1}[fold]
     for amino_acid, fold in ENZYME_FOLDS.items()
 }
