@@ -18,8 +18,8 @@ class Enzyme:
         self.next_index: int = 0
         self.copy_mode: bool = False
 
-        self.strand: typing.Optional[Strand] = None
-        self.unit_index: int = 0
+        self._strand: typing.Optional[Strand] = None
+        self._unit_index: int = 0
 
     @property
     def binding_preference(self):
@@ -34,11 +34,14 @@ class Enzyme:
     @property
     def is_active_and_attached(self):
         return self.next_index < len(self.amino_acids) \
-               and self.strand is not None \
-               and self.unit_index < len(self.strand) \
-               and self.strand[self.unit_index].facing is not None
+               and self._strand is not None \
+               and self._unit_index < len(self._strand) \
+               and self._strand[self._unit_index].facing is not None
 
-    def operate(self) -> typing.Iterable[Strand]:
+    def operate(self, strand: Strand, starting_unit: int) -> typing.Iterable[Strand]:
+        self._strand = strand
+        self._unit_index = starting_unit
+
         while self.is_active_and_attached:
             next_amino_acid = self.amino_acids[self.next_index]
             next_operation = getattr(self, "_" + next_amino_acid)
@@ -46,27 +49,30 @@ class Enzyme:
             if new_strand_group is not None:
                 yield from new_strand_group.unzip()
             self.next_index += 1
-        yield from self.strand.unzip()
+        yield from self._strand.unzip()
+
+        self._strand = None
+        self._unit_index = 0
 
     def _cut(self):
-        cut_index = self.unit_index + 1
-        removed_strand = Strand(self.strand[cut_index:]) if len(self.strand) > cut_index else None
-        self.strand = Strand(self.strand[:cut_index])
+        cut_index = self._unit_index + 1
+        removed_strand = Strand(self._strand[cut_index:]) if len(self._strand) > cut_index else None
+        self._strand = Strand(self._strand[:cut_index])
         return removed_strand
 
     def _del(self):
-        self.strand.pop(self.unit_index)
+        self._strand.pop(self._unit_index)
 
     def _swi(self):
-        self.strand = Strand(Unit(unit.opposite, unit.facing) for unit in reversed(self.strand))
-        self.unit_index = len(self.strand) - self.unit_index - 1
+        self._strand = Strand(Unit(unit.opposite, unit.facing) for unit in reversed(self._strand))
+        self._unit_index = len(self._strand) - self._unit_index - 1
 
     def _mvr(self):
-        self.unit_index += 1
+        self._unit_index += 1
         self._maybe_copy()
 
     def _mvl(self):
-        self.unit_index -= 1
+        self._unit_index -= 1
         self._maybe_copy()
 
     def _cop(self):
@@ -90,43 +96,43 @@ class Enzyme:
 
     def _rpy(self):
         self._mvr()
-        while self.unit_index < len(self.strand) \
-                and self.strand[self.unit_index].facing is not None \
-                and self.strand[self.unit_index].facing not in PYRIMIDINES:
+        while self._unit_index < len(self._strand) \
+                and self._strand[self._unit_index].facing is not None \
+                and self._strand[self._unit_index].facing not in PYRIMIDINES:
             self._mvr()
 
     def _rpu(self):
         self._mvr()
-        while self.unit_index < len(self.strand) \
-                and self.strand[self.unit_index].facing is not None \
-                and self.strand[self.unit_index].facing not in PURINES:
+        while self._unit_index < len(self._strand) \
+                and self._strand[self._unit_index].facing is not None \
+                and self._strand[self._unit_index].facing not in PURINES:
             self._mvr()
 
     def _lpy(self):
         self._mvl()
-        while self.unit_index < len(self.strand) \
-                and self.strand[self.unit_index].facing is not None \
-                and self.strand[self.unit_index].facing not in PYRIMIDINES:
+        while self._unit_index < len(self._strand) \
+                and self._strand[self._unit_index].facing is not None \
+                and self._strand[self._unit_index].facing not in PYRIMIDINES:
             self._mvl()
 
     def _lpu(self):
         self._mvl()
-        while self.unit_index < len(self.strand) \
-                and self.strand[self.unit_index].facing is not None \
-                and self.strand[self.unit_index].facing not in PURINES:
+        while self._unit_index < len(self._strand) \
+                and self._strand[self._unit_index].facing is not None \
+                and self._strand[self._unit_index].facing not in PURINES:
             self._mvl()
 
     def _maybe_copy(self):
         if self.copy_mode \
-                and self.unit_index < len(self.strand) \
-                and self.strand[self.unit_index].facing is not None \
-                and self.strand[self.unit_index].opposite is None:
-            self.strand[self.unit_index] = Unit(
-                self.strand[self.unit_index].facing,
-                COMPLIMENTS[self.strand[self.unit_index].facing],
+                and self._unit_index < len(self._strand) \
+                and self._strand[self._unit_index].facing is not None \
+                and self._strand[self._unit_index].opposite is None:
+            self._strand[self._unit_index] = Unit(
+                self._strand[self._unit_index].facing,
+                COMPLIMENTS[self._strand[self._unit_index].facing],
             )
 
     def _insert_base(self, base: BaseType):
-        insert_index = self.unit_index + 1
-        self.strand.insert(insert_index, Unit(base, None))
+        insert_index = self._unit_index + 1
+        self._strand.insert(insert_index, Unit(base, None))
         self._mvr()
