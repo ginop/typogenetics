@@ -26,7 +26,7 @@ class Enzyme:
 
     @classmethod
     def make_from_genes(cls, genes: BaseType):
-        duplets = [genes[i-2:i] for i in range(2, len(genes), 2)]
+        duplets = [genes[i-2:i] for i in range(2, len(genes)+1, 2)]
         amino_acids = []
         for duplet in duplets:
             if duplet == "AA":
@@ -50,7 +50,7 @@ class Enzyme:
     def is_active_and_attached(self):
         return self.next_index < len(self.amino_acids) \
                and self._strand is not None \
-               and self._unit_index < len(self._strand) \
+               and 0 <= self._unit_index < len(self._strand) \
                and self._strand[self._unit_index].facing is not None
 
     def operate(self, strand: Strand, starting_unit: int) -> typing.Iterable[Strand]:
@@ -125,14 +125,14 @@ class Enzyme:
 
     def _lpy(self):
         self._mvl()
-        while self._unit_index < len(self._strand) \
+        while 0 <= self._unit_index < len(self._strand) \
                 and self._strand[self._unit_index].facing is not None \
                 and self._strand[self._unit_index].facing not in PYRIMIDINES:
             self._mvl()
 
     def _lpu(self):
         self._mvl()
-        while self._unit_index < len(self._strand) \
+        while 0 <= self._unit_index < len(self._strand) \
                 and self._strand[self._unit_index].facing is not None \
                 and self._strand[self._unit_index].facing not in PURINES:
             self._mvl()
