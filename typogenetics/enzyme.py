@@ -30,11 +30,13 @@ class Enzyme:
         amino_acids = []
         for duplet in duplets:
             if duplet == "AA":
-                yield cls(amino_acids)
+                if amino_acids:
+                    yield cls(amino_acids)
                 amino_acids = []
             else:
                 amino_acids.append(DUPLETS[duplet])
-        yield cls(amino_acids)
+        if amino_acids:
+            yield cls(amino_acids)
 
     @property
     def binding_preference(self):
